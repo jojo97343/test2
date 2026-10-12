@@ -82,7 +82,7 @@ canvas{width:min(100%, calc((100dvh - 250px) * var(--ar, .78)))!important;margin
 .bc{border-radius:6px;background:var(--plum);display:grid;place-items:center;min-width:0;min-height:0;aspect-ratio:1;transition:border-radius .25s}
 .bc.off{visibility:hidden}
 /* Cube façon Block Blast : photo + reflet + relief, cadre de la couleur de la pièce */
-.bc.f,.bc.pv,.mini i,.ghost i{background-color:var(--c);background-image:linear-gradient(180deg,#ffffff59 0,#ffffff14 38%,#0000 55%,#00000047 100%),var(--pimg);background-size:cover;background-position:center;
+.bc.f,.bc.pv,.mini i,.bbghost i{background-color:var(--c);background-image:linear-gradient(180deg,#ffffff59 0,#ffffff14 38%,#0000 55%,#00000047 100%),var(--pimg);background-size:cover;background-position:center;
   box-shadow:inset 0 0 0 2px var(--c),inset 0 3px 0 #ffffff70,inset 0 -4px 0 #00000059}
 .bc.pv{opacity:.55}
 .bc.hl{filter:brightness(1.4) saturate(1.2)}
@@ -96,10 +96,10 @@ canvas{width:min(100%, calc((100dvh - 250px) * var(--ar, .78)))!important;margin
 .bslot.no{opacity:.3}
 .bslot .tag{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
 .mini{display:grid;gap:2px}
-.mini i,.ghost i{display:block}
+.mini i,.bbghost i{display:block}
 .mini i{width:22px;height:22px;border-radius:5px}
-.ghost{position:fixed;z-index:50;display:grid;gap:3px;pointer-events:none;left:0;top:0}
-.ghost i{border-radius:6px;opacity:.95}
+.bbghost{position:fixed;z-index:50;display:grid;gap:3px;pointer-events:none;left:0;top:0}
+.bbghost i{border-radius:6px;opacity:.95}
 .hrt{display:grid;place-items:center;color:#2a1a08;font-size:1.1rem;line-height:1;background:radial-gradient(circle at 35% 30%,#ffe3ad,var(--gold))!important}
 .mini .hrt{width:36px!important;height:36px!important;border-radius:10px!important;font-size:1.4rem}
 .bb-msg{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-family:var(--display);font-size:clamp(1.6rem,8vw,2.3rem);color:var(--blush);text-shadow:0 3px 14px #000c;text-align:center;padding:0 16px;animation:bbmsg 1.1s forwards}
@@ -136,6 +136,8 @@ header{display:flex;flex-direction:column;gap:6px;margin-bottom:26px}
 .badge.done{background:var(--gold);color:#2a1a08}
 .vault-tile{margin-top:18px;background:linear-gradient(135deg,#4a2a3c,#2f1d3a);border-color:var(--gold)}
 .vault-tile .num{color:var(--gold)}
+.reset-zone{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:18px;text-align:center;color:var(--muted)}
+.reset-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .hint{color:var(--muted);font-size:.85rem;margin-top:22px;text-align:center}
 
 /* Jeux communs */
@@ -406,8 +408,17 @@ function home() {
           <span class="badge ${best(b.id === "puzzle" ? "puzzle3" : b.id) != null ? "done" : ""}">${bonusBadge(b.id)}</span>
         </button>`).join("")}
     </div>
-    <p class="hint">Avec tout mon amour, ${esc(CONFIG.moi)}</p>`;
+    <p class="hint">Avec tout mon amour, ${esc(CONFIG.moi)}</p>
+    ${n > 0 ? `<div class="reset-zone" id="rz"><button class="btn ghost" id="reset">↺ Tout recommencer</button></div>` : ""}`;
   app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => open(b.dataset.g));
+  const rb = app.querySelector("#reset");
+  if (rb) rb.onclick = () => {
+    const z = app.querySelector("#rz");
+    z.innerHTML = `<p>Tout recommencer depuis le début ? Tes chiffres seront effacés (tes records bonus restent).</p>
+      <div class="reset-btns"><button class="btn" id="yes">Oui, on recommence</button><button class="btn ghost" id="no">Non</button></div>`;
+    z.querySelector("#no").onclick = home;
+    z.querySelector("#yes").onclick = () => { const keep = done.best; done = keep ? { best: keep } : {}; save(); window.scrollTo(0, 0); home(); };
+  };
 }
 
 function open(id) {
@@ -1089,7 +1100,7 @@ function blast() {
     if (over || !tray[i] || drag) return;
     e.preventDefault();
     const p = tray[i], m = metrics();
-    const g = document.createElement("div"); g.className = "ghost";
+    const g = document.createElement("div"); g.className = "bbghost";
     g.style.cssText = `grid-template-columns:repeat(${p.w},${m.size}px);grid-auto-rows:${m.size}px;--c:${p.color}`;
     g.innerHTML = blockHtml(p);
     document.body.appendChild(g);
@@ -1104,7 +1115,7 @@ function blast() {
     clearTimeout(revealT);
     window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); window.removeEventListener("pointercancel", onUp);
     if (drag) drag.g.remove(); drag = null;
-    document.querySelectorAll(".toast,.ghost").forEach(x => x.remove());
+    document.querySelectorAll(".toast,.bbghost").forEach(x => x.remove());
   };
   start();
 }
