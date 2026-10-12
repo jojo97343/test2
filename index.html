@@ -223,7 +223,11 @@ const CONFIG = {
   elle: "Kathy",
   moi: "Enzo",
   // Chansons jouées à la suite, en boucle (fichiers à mettre à côté de la page)
-  musique: ["chanson-fete.mp3", "chanson-amour.mp3"],
+  // Pour chaque chanson : les noms de fichier possibles (le premier trouvé est joué)
+  musique: [
+    ["On fait la marmotte.mp3", "chanson-fete.mp3"],
+    ["Joyeux anniversaire, mon cœur.mp3", "chanson-amour.mp3"],
+  ],
   intro: "4 jeux, 4 chiffres. Chaque jeu terminé te donne un chiffre du code. Avec les 4, tu ouvres le coffre.",
 
   // Le chiffre gagné à chaque jeu (dans l'ordre des jeux). Exemple : une date qui compte pour vous.
@@ -1133,20 +1137,23 @@ function letter() {
 
 /* Musique de fond : les chansons s'enchaînent, et démarrent au premier toucher (les téléphones bloquent la lecture automatique) */
 (() => {
-  const list = [].concat(CONFIG.musique || []).filter(Boolean);
+  const list = (CONFIG.musique || []).map(t => [].concat(t).filter(Boolean)).filter(t => t.length);
   if (!list.length) return;
   const audio = new Audio();
   audio.volume = .6; audio.preload = "auto";
-  let idx = 0, fails = 0, muted = false, started = false;
+  let idx = 0, alt = 0, fails = 0, muted = false, started = false;
   try { muted = localStorage.getItem("carte-kathy-muted") === "1"; } catch (e) {}
   const btn = document.createElement("button");
   btn.className = "music"; btn.hidden = true; btn.setAttribute("aria-label", "Couper ou remettre la musique");
   document.body.appendChild(btn);
   const show = () => { btn.textContent = muted ? "🔇" : "🔊"; btn.classList.toggle("off", muted); btn.classList.toggle("on", !muted && !audio.paused); };
-  const load = i => { idx = i % list.length; audio.src = list[idx]; };
+  const load = (i, a = 0) => { idx = i % list.length; alt = a; audio.src = encodeURI(list[idx][alt]); };
   const play = () => { if (!muted && started) audio.play().then(show).catch(() => {}); };
   audio.addEventListener("canplay", () => { fails = 0; btn.hidden = false; show(); });
-  audio.addEventListener("error", () => { fails++; if (fails < list.length) { load(idx + 1); play(); } else if (btn.hidden) btn.hidden = true; });
+  audio.addEventListener("error", () => {
+    if (alt + 1 < list[idx].length) { load(idx, alt + 1); play(); return; } // essaie l'autre nom de fichier
+    fails++; if (fails < list.length) { load(idx + 1); play(); } else btn.hidden = true;
+  });
   audio.addEventListener("ended", () => { load(idx + 1); play(); });
   audio.addEventListener("play", show); audio.addEventListener("pause", show);
   load(0);
