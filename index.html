@@ -1157,8 +1157,14 @@ function letter() {
   audio.addEventListener("ended", () => { load(idx + 1); play(); });
   audio.addEventListener("play", show); audio.addEventListener("pause", show);
   load(0);
-  const first = () => { started = true; play(); window.removeEventListener("pointerdown", first, true); window.removeEventListener("keydown", first, true); };
-  window.addEventListener("pointerdown", first, true); window.addEventListener("keydown", first, true);
+  // iPhone (Safari) n'autorise le son qu'après un vrai tap : on essaie à chaque geste jusqu'à ce que ça démarre
+  const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+  const unlock = () => {
+    started = true;
+    if (muted) return;
+    audio.play().then(() => { show(); GESTURES.forEach(ev => window.removeEventListener(ev, unlock, true)); }).catch(() => {});
+  };
+  GESTURES.forEach(ev => window.addEventListener(ev, unlock, true));
   btn.addEventListener("click", e => {
     e.stopPropagation();
     muted = !muted; started = true;
