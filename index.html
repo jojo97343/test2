@@ -205,10 +205,55 @@ canvas{display:block;width:100%;border-radius:16px;background:linear-gradient(#2
 .now-playing{margin:18px 0 0;text-align:center;font-size:.85rem;color:#a8325e;font-weight:700}
 .sign{margin-top:18px;font-family:var(--display);font-size:1.3rem;text-align:right}
 /* Bouton musique */
-.music{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;width:48px;height:48px;border-radius:50%;
-  background:var(--card);border:1px solid var(--gold);color:var(--gold);font-size:1.3rem;display:grid;place-items:center;box-shadow:0 8px 24px #0008}
-.music.off{color:var(--muted);border-color:var(--line)}
-.music.on::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--gold);opacity:0;animation:pulse 1.8s infinite}
+[hidden]{display:none!important}
+/* Lecteur de musique (bulle) */
+.mp-wrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none}
+.mp-wrap>*{pointer-events:auto}
+.music{position:relative;width:52px;height:52px;border-radius:50%;background:var(--card);border:1px solid var(--rose);color:var(--rose);display:grid;place-items:center;box-shadow:0 8px 24px #0009;padding:0}
+.music[aria-expanded="true"]{background:var(--rose);color:#2a0f1c}
+.music .eq{position:absolute;top:-4px;right:-4px;display:flex;gap:2px;align-items:flex-end;height:14px;background:var(--night);padding:2px 4px;border-radius:8px;border:1px solid var(--line)}
+.music .eq i{display:block;width:2px;height:4px;background:var(--rose);border-radius:1px}
+.music.playing .eq i{animation:eq .9s ease-in-out infinite}
+.music .eq i:nth-child(2){animation-delay:.25s}.music .eq i:nth-child(3){animation-delay:.5s}
+.music:not(.playing) .eq{opacity:.45}
+.music.muted .eq i{background:var(--muted);animation:none}
+@keyframes eq{0%,100%{height:3px}50%{height:11px}}
+.mp{width:min(306px,calc(100vw - 32px));box-sizing:border-box;background:var(--plum);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 50px #000b;padding:16px;display:flex;flex-direction:column;gap:14px;transform-origin:bottom right;animation:mpIn .18s ease-out;font-family:var(--body);color:var(--ink)}
+@keyframes mpIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}
+.mp-top{display:flex;align-items:center;justify-content:space-between}
+.mp-eye{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.mp-x{width:34px;height:34px;border-radius:50%;background:var(--card);color:var(--muted);display:grid;place-items:center;padding:0}
+.mp-now{display:flex;gap:12px;align-items:center}
+.mp-cover{width:56px;height:56px;border-radius:14px;object-fit:cover;flex:none;background:var(--card)}
+.mp-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mp-title{font-family:var(--display);font-weight:400;font-size:19px;line-height:1.15;color:var(--blush)}
+.mp-style{font-size:13px;color:var(--muted)}
+.mp-bar{height:6px;border-radius:3px;background:var(--line);cursor:pointer;position:relative;touch-action:none}
+.mp-bar i{display:block;height:100%;width:0;border-radius:3px;background:var(--rose)}
+.mp-times{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:6px}
+.mp-ctrl{display:flex;align-items:center;justify-content:space-between}
+.mp-ctrl button{width:44px;height:44px;border-radius:50%;background:transparent;color:var(--ink);display:grid;place-items:center;padding:0}
+.mp-ctrl .mp-play{width:58px;height:58px;background:var(--rose);color:#2a0f1c;box-shadow:0 6px 18px #ff8fab44}
+.mp-ctrl .mp-mute{color:var(--gold)}
+.mp-ctrl .mp-mute.on{color:var(--muted)}
+.mp-mid{display:flex;align-items:center;gap:14px}
+.mp-sep{height:1px;background:var(--line)}
+.mp-list{display:flex;flex-direction:column;gap:4px;max-height:38vh;overflow-y:auto}
+.mp-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border-radius:12px;padding:9px 10px;background:transparent;color:var(--ink);min-height:44px}
+.mp-row .n{width:18px;font-size:13px;font-weight:800;color:#8f7a95;font-variant-numeric:tabular-nums}
+.mp-row .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.mp-row .tx b{font-size:14px}
+.mp-row .tx span{font-size:12px;color:var(--muted)}
+.mp-row.on{background:#3d2638}
+.mp-row.on .n,.mp-row.on .tx b{color:var(--rose)}
+.mp-row .bars{display:none;gap:2px;align-items:flex-end;height:14px}
+.mp-row.on .bars{display:flex}
+.mp-row .bars i{display:block;width:3px;height:6px;background:var(--rose);border-radius:1px}
+.mp-row.on.playing .bars i{animation:eq .9s ease-in-out infinite}
+.mp-row .bars i:nth-child(2){animation-delay:.25s}.mp-row .bars i:nth-child(3){animation-delay:.5s}
+.mp-row.locked{border:1px dashed var(--line);color:var(--muted);cursor:default}
+.mp-row.locked .tx b{color:var(--gold)}
+.mp-row.secret .tx b{color:var(--gold)}
 @keyframes pulse{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.35);opacity:0}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -233,6 +278,14 @@ const CONFIG = {
     ["chanson-go-sure.mp3", "Ma Go Sûre Kathy.mp3", "Ma Go Sûre Kathy.mp3"],
     ["chanson-shatta.mp3", "Kathou 3.0.mp3"],
   ],
+  // Titres affichés dans le lecteur (même ordre que la liste au-dessus)
+  titresMusique: [
+    { titre: "On fait la marmotte", style: "Bal populaire" },
+    { titre: "Joyeux anniversaire mon cœur", style: "Pop romantique" },
+    { titre: "Ma Go Sûre", style: "Zouglou" },
+    { titre: "Kathou 3.0", style: "Shatta" },
+  ],
+  titreMusiqueCoffre: { titre: "Joyeux anniversaire Kathy", style: "Ta chanson secrète" },
   // Chanson jouée seulement à l'ouverture du coffre (les autres reprennent après)
   musiqueCoffre: ["chanson-coffre.mp3", "Joyeux anniversaire Kathy.mp3"],
   intro: "4 jeux, 4 chiffres. Chaque jeu terminé te donne un chiffre du code. Avec les 4, tu ouvres le coffre.",
@@ -1140,7 +1193,7 @@ function coffre() {
     const k = b.dataset.k;
     if (k === "del") typed.pop();
     else if (k === "ok") {
-      if (typed.join("") === CONFIG.code.join("")) { if (window.cardMusic) window.cardMusic.special(CONFIG.musiqueCoffre); return letter(); }
+      if (typed.join("") === CONFIG.code.join("")) { done.opened = true; save(); if (window.cardMusic) window.cardMusic.special(CONFIG.musiqueCoffre, "coffre"); return letter(); }
       const e = app.querySelector("#entry"); e.classList.remove("shake"); void e.offsetWidth; e.classList.add("shake"); typed = [];
     } else if (typed.length < CONFIG.code.length) typed.push(+k);
     paint();
@@ -1152,66 +1205,170 @@ function letter() {
     ${L.paragraphes.map(p => `<p>${esc(p)}</p>`).join("")}<div class="gift">${esc(L.cadeau)}</div><div class="sign">${esc(L.signature)}</div><p class="now-playing">♪ Ta chanson : « Joyeux anniversaire Kathy »</p></div>`;
 }
 
-/* Musique de fond : les chansons s'enchaînent, et démarrent au premier toucher (les téléphones bloquent la lecture automatique) */
+/* Musique de fond + lecteur en bulle (les téléphones bloquent le son tant qu'on n'a pas touché l'écran) */
 (() => {
   const list = (CONFIG.musique || []).map(t => [].concat(t).filter(Boolean)).filter(t => t.length);
   if (!list.length) return;
-  const audio = new Audio();
-  audio.volume = .6; audio.preload = "auto";
-  let idx = 0, alt = 0, fails = 0, muted = false, started = false;
-  try { muted = localStorage.getItem("carte-kathy-muted") === "1"; } catch (e) {}
-  const btn = document.createElement("button");
-  btn.className = "music"; btn.hidden = true; btn.setAttribute("aria-label", "Couper ou remettre la musique");
-  document.body.appendChild(btn);
-  const show = () => { btn.textContent = muted ? "🔇" : "🔊"; btn.classList.toggle("off", muted); btn.classList.toggle("on", !muted && (!audio.paused || (typeof special !== "undefined" && !special.paused))); };
-  const load = (i, a = 0) => { idx = i % list.length; alt = a; audio.src = encodeURI(list[idx][alt]); };
-  // Chanson spéciale du coffre
+  const infos = CONFIG.titresMusique || [];
+  const spInfo = CONFIG.titreMusiqueCoffre || { titre: "Chanson secrète", style: "" };
+  const photos = (CONFIG.puzzle && CONFIG.puzzle.photos) || [];
+  const cover = i => (photos.length ? photos[(i * 3 + 1) % photos.length].photo : "");
+  const audio = new Audio(); audio.volume = .6; audio.preload = "auto";
   const special = new Audio(); special.volume = .75; special.preload = "none";
-  let inSpecial = false, spList = [], spAlt = 0;
-  const play = () => { if (!muted && started && !inSpecial) audio.play().then(show).catch(() => {}); };
-  special.addEventListener("error", () => { if (inSpecial && spAlt + 1 < spList.length) { spAlt++; special.src = encodeURI(spList[spAlt]); if (!muted) special.play().catch(() => {}); } });
-  special.addEventListener("ended", () => { inSpecial = false; play(); show(); });
-  special.addEventListener("play", () => { btn.hidden = false; show(); }); special.addEventListener("pause", () => show());
-  window.cardMusic = {
-    special(names) {
-      spList = [].concat(names || []).filter(Boolean); if (!spList.length) return;
-      inSpecial = true; started = true; spAlt = 0; audio.pause();
-      special.src = encodeURI(spList[0]); special.currentTime = 0;
-      if (!muted) special.play().catch(() => {});
-      show();
-    },
-    stopSpecial() { if (!inSpecial) return; inSpecial = false; special.pause(); play(); },
+  let idx = 0, alt = 0, fails = 0, muted = false, started = false, userPaused = false;
+  let inSpecial = false, spList = [], spAlt = 0, spSource = "";
+  try { muted = localStorage.getItem("carte-kathy-muted") === "1"; } catch (e) {}
+  const cur = () => (inSpecial ? special : audio);
+  const applyMute = () => { audio.muted = muted; special.muted = muted; };
+  applyMute();
+
+  const I = {
+    note: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    x: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    prev: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="19 20 9 12 19 4 19 20"/><rect x="5" y="4" width="2.5" height="16" rx="1"/></svg>',
+    next: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 4 15 12 5 20 5 4"/><rect x="16.5" y="4" width="2.5" height="16" rx="1"/></svg>',
+    play: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7 4 20 12 7 20 7 4"/></svg>',
+    pause: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+    vol: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>',
+    mute: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M22 9l-6 6M16 9l6 6"/></svg>',
+    lock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f5c27a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
   };
-  audio.addEventListener("canplay", () => { fails = 0; btn.hidden = false; show(); });
+
+  const wrap = document.createElement("div");
+  wrap.className = "mp-wrap";
+  wrap.innerHTML = `
+    <div class="mp" id="mp" role="dialog" aria-label="Musiques" hidden>
+      <div class="mp-top"><span class="mp-eye">En ce moment</span><button class="mp-x" aria-label="Fermer le lecteur">${I.x}</button></div>
+      <div class="mp-now"><img class="mp-cover" alt=""><div class="mp-meta"><b class="mp-title"></b><span class="mp-style"></span></div></div>
+      <div><div class="mp-bar" aria-label="Avancer dans la chanson"><i></i></div><div class="mp-times"><span class="t1">0:00</span><span class="t2">–:––</span></div></div>
+      <div class="mp-ctrl">
+        <button class="mp-mute" aria-label="Couper le son"></button>
+        <div class="mp-mid"><button class="mp-prev" aria-label="Chanson précédente">${I.prev}</button><button class="mp-play" aria-label="Lecture"></button><button class="mp-next" aria-label="Chanson suivante">${I.next}</button></div>
+        <span style="width:44px"></span>
+      </div>
+      <div class="mp-sep"></div>
+      <div class="mp-list"></div>
+    </div>
+    <button class="music" aria-label="Ouvrir les musiques" aria-expanded="false" hidden>${I.note}<span class="eq"><i></i><i></i><i></i></span></button>`;
+  document.body.appendChild(wrap);
+  const $ = q => wrap.querySelector(q);
+  const btn = $(".music"), panel = $("#mp"), listEl = $(".mp-list");
+  const fmt = t => (isFinite(t) && t >= 0 ? Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0") : "–:––");
+  const unlocked = () => !!(typeof done !== "undefined" && done.opened);
+
+  const renderList = () => {
+    const rows = list.map((_, i) => {
+      const inf = infos[i] || { titre: "Chanson " + (i + 1), style: "" };
+      return `<button class="mp-row" data-i="${i}"><span class="n">${i + 1}</span><span class="tx"><b>${esc(inf.titre)}</b><span>${esc(inf.style)}</span></span><span class="bars"><i></i><i></i><i></i></span></button>`;
+    }).join("");
+    const secret = unlocked()
+      ? `<button class="mp-row secret" data-i="s"><span class="n">♥</span><span class="tx"><b>${esc(spInfo.titre)}</b><span>${esc(spInfo.style)}</span></span><span class="bars"><i></i><i></i><i></i></span></button>`
+      : `<div class="mp-row locked">${I.lock}<span class="tx"><b>Chanson secrète</b><span>Se débloque en ouvrant le coffre</span></span></div>`;
+    listEl.innerHTML = rows + secret;
+    listEl.querySelectorAll("[data-i]").forEach(r => r.onclick = () => {
+      const v = r.dataset.i;
+      if (v === "s") window.cardMusic.special(CONFIG.musiqueCoffre, "player");
+      else { leaveSpecial(); load(+v); userPaused = false; started = true; play(); }
+      update();
+    });
+  };
+
+  const update = () => {
+    const el = cur(), playing = !el.paused && !el.ended;
+    const inf = inSpecial ? spInfo : (infos[idx] || { titre: "Chanson " + (idx + 1), style: "" });
+    btn.classList.toggle("playing", playing && !muted);
+    btn.classList.toggle("muted", muted);
+    btn.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+    if (panel.hidden) return;
+    $(".mp-title").textContent = inf.titre;
+    $(".mp-style").textContent = inf.style + (inSpecial ? "" : ` · ${idx + 1} sur ${list.length}`);
+    const c = inSpecial ? cover(5) : cover(idx);
+    if (c && $(".mp-cover").getAttribute("src") !== c) $(".mp-cover").src = c;
+    const pb = $(".mp-play"); pb.innerHTML = playing ? I.pause : I.play; pb.setAttribute("aria-label", playing ? "Pause" : "Lecture");
+    const mb = $(".mp-mute"); mb.innerHTML = muted ? I.mute : I.vol; mb.classList.toggle("on", muted); mb.setAttribute("aria-label", muted ? "Remettre le son" : "Couper le son");
+    listEl.querySelectorAll(".mp-row[data-i]").forEach(r => {
+      const on = inSpecial ? r.dataset.i === "s" : r.dataset.i === String(idx);
+      r.classList.toggle("on", on); r.classList.toggle("playing", on && playing);
+    });
+    progress();
+  };
+  const progress = () => {
+    if (panel.hidden) return;
+    const el = cur();
+    const d = el.duration, t = el.currentTime;
+    $(".mp-bar i").style.width = (isFinite(d) && d > 0 ? Math.min(100, t / d * 100) : 0) + "%";
+    $(".t1").textContent = fmt(t); $(".t2").textContent = fmt(d);
+  };
+
+  const load = (i, a = 0) => { idx = ((i % list.length) + list.length) % list.length; alt = a; audio.src = encodeURI(list[idx][alt]); };
+  const play = () => { if (started && !userPaused) cur().play().catch(() => {}); };
+  const leaveSpecial = () => { if (!inSpecial) return; inSpecial = false; spSource = ""; special.pause(); };
+
+  // Chanson du coffre
+  special.addEventListener("error", () => { if (inSpecial && spAlt + 1 < spList.length) { spAlt++; special.src = encodeURI(spList[spAlt]); special.play().catch(() => {}); } });
+  special.addEventListener("ended", () => { leaveSpecial(); play(); update(); });
+  window.cardMusic = {
+    special(names, source = "coffre") {
+      spList = [].concat(names || []).filter(Boolean); if (!spList.length) return;
+      inSpecial = true; spSource = source; started = true; userPaused = false; spAlt = 0; audio.pause();
+      special.src = encodeURI(spList[0]); special.currentTime = 0;
+      special.play().catch(() => {});
+      renderList(); update();
+    },
+    stopSpecial() { if (!inSpecial || spSource !== "coffre") return; leaveSpecial(); play(); update(); },
+  };
+
+  audio.addEventListener("canplay", () => { fails = 0; btn.hidden = false; update(); });
   audio.addEventListener("error", () => {
     if (alt + 1 < list[idx].length) { load(idx, alt + 1); play(); return; } // essaie l'autre nom de fichier
-    fails++; if (fails < list.length) { load(idx + 1); play(); } else btn.hidden = true;
+    fails++; if (fails < list.length) { load(idx + 1); play(); } else if (!inSpecial) btn.hidden = true;
   });
-  audio.addEventListener("ended", () => { load(idx + 1); play(); });
-  audio.addEventListener("play", show); audio.addEventListener("pause", show);
+  audio.addEventListener("ended", () => { load(idx + 1); play(); update(); });
+  [audio, special].forEach(el => {
+    ["play", "pause", "loadedmetadata"].forEach(ev => el.addEventListener(ev, () => { if (ev === "play") btn.hidden = false; update(); }));
+    el.addEventListener("timeupdate", progress);
+  });
   load(0);
+
+  // Ouvrir / fermer la bulle
+  const openPanel = v => { panel.hidden = !v; if (v) { renderList(); } update(); };
+  btn.addEventListener("click", e => { e.stopPropagation(); openPanel(panel.hidden); });
+  $(".mp-x").onclick = () => openPanel(false);
+  document.addEventListener("pointerdown", e => { if (!panel.hidden && !wrap.contains(e.target)) openPanel(false); }, true);
+
+  // Commandes
+  $(".mp-play").onclick = () => {
+    started = true;
+    const el = cur();
+    if (el.paused) { userPaused = false; el.play().catch(() => {}); } else { userPaused = true; el.pause(); }
+  };
+  $(".mp-next").onclick = () => { leaveSpecial(); load(idx + 1); userPaused = false; started = true; play(); update(); };
+  $(".mp-prev").onclick = () => {
+    if (!inSpecial && audio.currentTime > 4) { audio.currentTime = 0; return; }
+    leaveSpecial(); load(idx - 1); userPaused = false; started = true; play(); update();
+  };
+  $(".mp-mute").onclick = () => {
+    muted = !muted; applyMute();
+    try { localStorage.setItem("carte-kathy-muted", muted ? "1" : "0"); } catch (err) {}
+    if (!muted) { started = true; play(); }
+    update();
+  };
+  const seek = e => {
+    const el = cur(), r = $(".mp-bar").getBoundingClientRect();
+    if (!isFinite(el.duration)) return;
+    el.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * el.duration; progress();
+  };
+  $(".mp-bar").addEventListener("pointerdown", seek);
+
   // iPhone (Safari) n'autorise le son qu'après un vrai tap : on essaie à chaque geste jusqu'à ce que ça démarre
   const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
   const unlock = () => {
     started = true;
-    if (muted) return;
-    audio.play().then(() => { show(); GESTURES.forEach(ev => window.removeEventListener(ev, unlock, true)); }).catch(() => {});
+    if (userPaused) return;
+    cur().play().then(() => { GESTURES.forEach(ev => window.removeEventListener(ev, unlock, true)); update(); }).catch(() => {});
   };
   GESTURES.forEach(ev => window.addEventListener(ev, unlock, true));
-  btn.addEventListener("click", e => {
-    e.stopPropagation();
-    muted = !muted; started = true;
-    try { localStorage.setItem("carte-kathy-muted", muted ? "1" : "0"); } catch (err) {}
-    if (muted) { audio.pause(); special.pause(); }
-    else if (inSpecial) special.play().catch(() => {});
-    else audio.play().catch(() => {});
-    show();
-  });
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) { audio.pause(); special.pause(); }
-    else if (inSpecial) { if (!muted) special.play().catch(() => {}); }
-    else play();
-  });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { audio.pause(); special.pause(); } else play(); });
 })();
 
 home();
