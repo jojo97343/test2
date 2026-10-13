@@ -202,6 +202,7 @@ canvas{display:block;width:100%;border-radius:16px;background:linear-gradient(#2
 .letter h2{color:#a8325e;margin-bottom:14px}
 .letter p+p{margin-top:12px}
 .gift{margin-top:20px;padding:14px;border:2px dashed #a8325e;border-radius:10px;text-align:center;font-weight:800}
+.now-playing{margin:18px 0 0;text-align:center;font-size:.85rem;color:#a8325e;font-weight:700}
 .sign{margin-top:18px;font-family:var(--display);font-size:1.3rem;text-align:right}
 /* Bouton musique */
 .music{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;width:48px;height:48px;border-radius:50%;
@@ -231,6 +232,8 @@ const CONFIG = {
     ["Joyeux anniversaire, mon cœur.mp3", "chanson-amour.mp3"],
     ["chanson-go-sure.mp3", "Ma Go Sûre Kathy.mp3", "Ma Go Sûre Kathy.mp3"],
   ],
+  // Chanson jouée seulement à l'ouverture du coffre (les autres reprennent après)
+  musiqueCoffre: ["chanson-coffre.mp3", "Joyeux anniversaire Kathy.mp3"],
   intro: "4 jeux, 4 chiffres. Chaque jeu terminé te donne un chiffre du code. Avec les 4, tu ouvres le coffre.",
 
   // Le chiffre gagné à chaque jeu (dans l'ordre des jeux). Exemple : une date qui compte pour vous.
@@ -378,6 +381,7 @@ let stopLoop = null;
 
 function home() {
   if (stopLoop) { stopLoop(); stopLoop = null; }
+  if (window.cardMusic) window.cardMusic.stopSpecial();
   const n = GAMES.filter(g => done[g.id]).length;
   app.innerHTML = `
     <header>
@@ -1135,7 +1139,7 @@ function coffre() {
     const k = b.dataset.k;
     if (k === "del") typed.pop();
     else if (k === "ok") {
-      if (typed.join("") === CONFIG.code.join("")) return letter();
+      if (typed.join("") === CONFIG.code.join("")) { if (window.cardMusic) window.cardMusic.special(CONFIG.musiqueCoffre); return letter(); }
       const e = app.querySelector("#entry"); e.classList.remove("shake"); void e.offsetWidth; e.classList.add("shake"); typed = [];
     } else if (typed.length < CONFIG.code.length) typed.push(+k);
     paint();
@@ -1144,7 +1148,7 @@ function coffre() {
 function letter() {
   const L = CONFIG.lettre;
   app.querySelector("#zone").innerHTML = `<div class="letter"><h2>${esc(L.titre)}</h2>
-    ${L.paragraphes.map(p => `<p>${esc(p)}</p>`).join("")}<div class="gift">${esc(L.cadeau)}</div><div class="sign">${esc(L.signature)}</div></div>`;
+    ${L.paragraphes.map(p => `<p>${esc(p)}</p>`).join("")}<div class="gift">${esc(L.cadeau)}</div><div class="sign">${esc(L.signature)}</div><p class="now-playing">♪ Ta chanson : « Joyeux anniversaire Kathy »</p></div>`;
 }
 
 /* Musique de fond : les chansons s'enchaînent, et démarrent au premier toucher (les téléphones bloquent la lecture automatique) */
@@ -1158,9 +1162,25 @@ function letter() {
   const btn = document.createElement("button");
   btn.className = "music"; btn.hidden = true; btn.setAttribute("aria-label", "Couper ou remettre la musique");
   document.body.appendChild(btn);
-  const show = () => { btn.textContent = muted ? "🔇" : "🔊"; btn.classList.toggle("off", muted); btn.classList.toggle("on", !muted && !audio.paused); };
+  const show = () => { btn.textContent = muted ? "🔇" : "🔊"; btn.classList.toggle("off", muted); btn.classList.toggle("on", !muted && (!audio.paused || (typeof special !== "undefined" && !special.paused))); };
   const load = (i, a = 0) => { idx = i % list.length; alt = a; audio.src = encodeURI(list[idx][alt]); };
-  const play = () => { if (!muted && started) audio.play().then(show).catch(() => {}); };
+  // Chanson spéciale du coffre
+  const special = new Audio(); special.volume = .75; special.preload = "none";
+  let inSpecial = false, spList = [], spAlt = 0;
+  const play = () => { if (!muted && started && !inSpecial) audio.play().then(show).catch(() => {}); };
+  special.addEventListener("error", () => { if (inSpecial && spAlt + 1 < spList.length) { spAlt++; special.src = encodeURI(spList[spAlt]); if (!muted) special.play().catch(() => {}); } });
+  special.addEventListener("ended", () => { inSpecial = false; play(); show(); });
+  special.addEventListener("play", () => { btn.hidden = false; show(); }); special.addEventListener("pause", () => show());
+  window.cardMusic = {
+    special(names) {
+      spList = [].concat(names || []).filter(Boolean); if (!spList.length) return;
+      inSpecial = true; started = true; spAlt = 0; audio.pause();
+      special.src = encodeURI(spList[0]); special.currentTime = 0;
+      if (!muted) special.play().catch(() => {});
+      show();
+    },
+    stopSpecial() { if (!inSpecial) return; inSpecial = false; special.pause(); play(); },
+  };
   audio.addEventListener("canplay", () => { fails = 0; btn.hidden = false; show(); });
   audio.addEventListener("error", () => {
     if (alt + 1 < list[idx].length) { load(idx, alt + 1); play(); return; } // essaie l'autre nom de fichier
@@ -1181,10 +1201,16 @@ function letter() {
     e.stopPropagation();
     muted = !muted; started = true;
     try { localStorage.setItem("carte-kathy-muted", muted ? "1" : "0"); } catch (err) {}
-    if (muted) audio.pause(); else audio.play().catch(() => {});
+    if (muted) { audio.pause(); special.pause(); }
+    else if (inSpecial) special.play().catch(() => {});
+    else audio.play().catch(() => {});
     show();
   });
-  document.addEventListener("visibilitychange", () => { if (document.hidden) audio.pause(); else play(); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { audio.pause(); special.pause(); }
+    else if (inSpecial) { if (!muted) special.play().catch(() => {}); }
+    else play();
+  });
 })();
 
 home();
