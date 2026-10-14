@@ -160,7 +160,7 @@ header{display:flex;flex-direction:column;gap:6px;margin-bottom:26px}
 .mcard .f,.mcard .b{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;display:grid;place-items:center;overflow:hidden}
 .mcard .f{background:var(--rose);color:#2a0f1c;font-family:var(--display);font-size:1.6rem}
 .mcard .b{transform:rotateY(180deg);font-weight:800;font-size:.75rem;padding:6px;text-align:center;color:#2a0f1c}
-.mcard .b img{width:100%;height:100%;object-fit:cover}
+.mcard .b img{position:absolute;left:6px;top:6px;width:calc(100% - 12px);height:calc(100% - 12px);max-width:none;object-fit:cover;object-position:center;border-radius:8px}
 .mcard.matched{opacity:.55}
 .mcard.mix{animation:mix .6s}
 @keyframes mix{30%{transform:scale(.85) rotate(-6deg)}60%{transform:scale(1.05) rotate(4deg)}}
