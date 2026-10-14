@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>*{box-sizing:border-box}html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Pour Kathy</title>
+<title>TCHIKIBRRR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;800&display=swap">
 <style>
@@ -162,6 +162,8 @@ header{display:flex;flex-direction:column;gap:6px;margin-bottom:26px}
 .mcard .b{transform:rotateY(180deg);font-weight:800;font-size:.75rem;padding:6px;text-align:center;color:#2a0f1c}
 .mcard .b img{width:100%;height:100%;object-fit:cover}
 .mcard.matched{opacity:.55}
+.mcard.mix{animation:mix .6s}
+@keyframes mix{30%{transform:scale(.85) rotate(-6deg)}60%{transform:scale(1.05) rotate(4deg)}}
 .anecdote{min-height:3em;color:var(--blush);margin-top:12px;text-align:center}
 
 /* Timeline */
@@ -206,6 +208,46 @@ canvas{display:block;width:100%;border-radius:16px;background:linear-gradient(#2
 .sign{margin-top:18px;font-family:var(--display);font-size:1.3rem;text-align:right}
 /* Bouton musique */
 [hidden]{display:none!important}
+/* Ticket d'entrée */
+.tk-ov{position:fixed;inset:0;z-index:90;background:#120c17;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(20px + env(safe-area-inset-top,0px)) 18px calc(20px + env(safe-area-inset-bottom,0px));overflow-y:auto;overflow-x:hidden;transition:opacity .5s;background-image:radial-gradient(circle at 50% 30%,#3a1f3d 0,transparent 60%)}
+.tk-ov.out{opacity:0}
+.tk-sound{width:100%;max-width:420px;box-sizing:border-box;display:flex;align-items:center;gap:14px;background:var(--gold);color:#2a1a08;border-radius:20px;padding:14px 16px;animation:sndPulse 1.6s infinite}
+@keyframes sndPulse{0%{box-shadow:0 0 0 0 #f5c27a99}70%{box-shadow:0 0 0 18px #f5c27a00}100%{box-shadow:0 0 0 0 #f5c27a00}}
+.tk-spk{width:54px;height:54px;border-radius:50%;background:#2a1a08;color:var(--gold);display:grid;place-items:center;flex:none}
+.tk-spk .w1,.tk-spk .w2{animation:wave 1.2s infinite}
+.tk-spk .w2{animation-delay:.3s}
+@keyframes wave{0%,100%{opacity:.15}50%{opacity:1}}
+.tk-st{display:flex;flex-direction:column;gap:2px}
+.tk-st b{font-family:var(--display);font-weight:400;font-size:23px;line-height:1.1}
+.tk-st span{font-size:14px;font-weight:600;line-height:1.35}
+.tk{position:relative;width:100%;max-width:420px;transform:rotate(-2deg)}
+.tk.shake{animation:tkShake .45s}
+@keyframes tkShake{20%{transform:rotate(-2deg) translateX(-10px)}40%{transform:rotate(-2deg) translateX(10px)}60%{transform:rotate(-2deg) translateX(-6px)}80%{transform:rotate(-2deg) translateX(6px)}}
+.tk-top{display:flex;gap:14px;align-items:center;background:#fbeef3;color:#2a1b33;border-radius:22px 22px 0 0;padding:20px 20px 16px;transition:transform .7s cubic-bezier(.5,-.3,.7,1),opacity .7s}
+.tk-top img{width:80px;height:80px;border-radius:16px;object-fit:cover;flex:none}
+.tk-top>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tk-eye{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#a8325e;font-weight:800}
+.tk-top b{font-family:var(--display);font-weight:400;font-size:26px;line-height:1.05}
+.tk-sub{font-size:13px;color:#6b5470}
+.tk-top.fly{transform:translateY(-75vh) rotate(-10deg);opacity:0}
+.tk-perf{position:relative;height:0;border-top:2px dashed #d9c3d3}
+.tk-perf::before,.tk-perf::after{content:"";position:absolute;top:-14px;width:28px;height:28px;border-radius:50%;background:#1d1220}
+.tk-perf::before{left:-14px}.tk-perf::after{right:-14px}
+.tk-stub{position:relative;background:#fbeef3;color:#2a1b33;border-radius:0 0 22px 22px;padding:16px 20px 14px;display:flex;flex-direction:column;gap:10px;touch-action:none;cursor:grab;transition:transform .35s cubic-bezier(.2,.9,.3,1.2);user-select:none;-webkit-user-select:none}
+.tk-stub.drag{transition:none;cursor:grabbing}
+.tk-stub.fall{transition:transform 1.1s cubic-bezier(.5,0,.9,.6),opacity 1.1s;transform:translateY(120vh) rotate(28deg)!important}
+.tk-stub label{font-weight:800;font-size:15px}
+.tk-stub input{font-family:var(--body);font-size:18px;font-weight:700;padding:13px 15px;border-radius:14px;border:2px solid var(--rose);background:#fff;color:#2a1b33;outline:none;touch-action:auto;user-select:text;-webkit-user-select:text}
+.tk-stub input:focus{border-color:#a8325e}
+.tk-msg{margin:0;min-height:1.3em;font-size:14px;font-weight:700;color:#a8325e}
+.tk-msg.ok{color:#2f8a3e}
+.tk-pull{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:800;color:#6b5470;border-top:1px solid #ecdbe6;padding-top:12px}
+.tk-pull .arr{display:inline-block;animation:arr 1.1s ease-in-out infinite;color:#e0507a;font-size:20px}
+@keyframes arr{0%,100%{transform:translateY(-3px)}50%{transform:translateY(5px)}}
+.tk-btn{background:transparent;color:#8f7a95;font-weight:700;font-size:14px;text-decoration:underline;padding:10px;min-height:44px}
+.cf{position:fixed;top:-20px;z-index:95;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:cf var(--d) linear forwards}
+@keyframes cf{to{transform:translate(var(--x),110vh) rotate(var(--r))}}
+.linkbtn{background:none;color:var(--muted);font-weight:700;font-size:14px;text-decoration:underline;padding:8px;min-height:44px}
 /* Lecteur de musique (bulle) */
 .mp-wrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none}
 .mp-wrap>*{pointer-events:auto}
@@ -288,6 +330,8 @@ const CONFIG = {
   titreMusiqueCoffre: { titre: "Joyeux anniversaire Kathy", style: "Ta chanson secrète" },
   // Chanson jouée seulement à l'ouverture du coffre (les autres reprennent après)
   musiqueCoffre: ["chanson-coffre.mp3", "Joyeux anniversaire Kathy.mp3"],
+  // Ticket d'entrée (affiché à la première visite)
+  ticket: { surnoms: ["Kathou"], indice: "Ça commence par K et ça finit par « ou » 😉" },
   intro: "4 jeux, 4 chiffres. Chaque jeu terminé te donne un chiffre du code. Avec les 4, tu ouvres le coffre.",
 
   // Le chiffre gagné à chaque jeu (dans l'ordre des jeux). Exemple : une date qui compte pour vous.
@@ -467,8 +511,10 @@ function home() {
         </button>`).join("")}
     </div>
     <p class="hint">Avec tout mon amour, ${esc(CONFIG.moi)}</p>
+    ${done.ticket ? `<p style="text-align:center;margin:4px 0 0"><button class="linkbtn" id="reticket">Revoir mon ticket d'entrée</button></p>` : ""}
     ${n > 0 ? `<div class="reset-zone" id="rz"><button class="btn ghost" id="reset">↺ Tout recommencer</button></div>` : ""}`;
   app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => open(b.dataset.g));
+  const rt = app.querySelector("#reticket"); if (rt) rt.onclick = () => ticket(true);
   const rb = app.querySelector("#reset");
   if (rb) rb.onclick = () => {
     const z = app.querySelector("#rz");
@@ -504,6 +550,7 @@ function quiz() {
   const z = app.querySelector("#zone");
   const step = () => {
     if (k >= Q.length) {
+      // le score compte seulement les bonnes réponses du premier coup
       const r = score / Q.length;
       const msg = r === 1 ? `${score}/${Q.length}. Parfait, tu me connais par cœur.` : r >= .6 ? `${score}/${Q.length}. Pas mal du tout, tu m'aimes vraiment.` : `${score}/${Q.length}. Hmm… on a encore des choses à se raconter.`;
       return win("quiz", msg);
@@ -529,12 +576,22 @@ function quiz() {
       });
       return;
     }
+    // Mauvaise réponse : on ne donne pas la bonne, elle doit la trouver seule
+    const msgEl = z.querySelector("#msg");
+    const nope = ["Non… cherche encore 😏", "Toujours pas !", "Réfléchis bien…", "T'es sûre de me connaître ? 😅"];
+    let miss = 0;
     z.querySelectorAll(".choice").forEach(b => b.onclick = () => {
       const i = +b.dataset.i;
-      z.querySelectorAll(".choice").forEach(x => x.disabled = true);
-      z.querySelector(`[data-i="${q.bonne}"]`).classList.add("right");
-      if (i === q.bonne) score++; else b.classList.add("wrong");
-      setTimeout(() => { k++; step(); }, 900);
+      if (i === q.bonne) {
+        z.querySelectorAll(".choice").forEach(x => x.disabled = true);
+        b.classList.add("right");
+        if (miss === 0) { score++; msgEl.textContent = "Bonne réponse du premier coup ❤️"; }
+        else msgEl.textContent = "Enfin ! 😄";
+        setTimeout(() => { k++; step(); }, 1100);
+      } else {
+        b.classList.add("wrong"); b.disabled = true;
+        msgEl.textContent = nope[Math.min(miss, nope.length - 1)]; miss++;
+      }
     });
   };
   step();
@@ -544,14 +601,32 @@ function quiz() {
 function memory() {
   shell("Memory de nos photos", "Jeu 2", `<div id="zone"><div class="panel"><div class="grid" id="grid"></div><p class="anecdote" id="anec">Retourne deux cartes pour trouver les paires.</p></div></div>`);
   const tints = ["#ffb3c6", "#f5c27a", "#b9a6ff", "#8fe3b6", "#9fd3ff", "#ffcf9f"];
-  const deck = shuffle(CONFIG.memory.flatMap((m, i) => [i, i]));
+  // Les deux cartes d'une même paire ne sont jamais côte à côte (ni en diagonale)
+  const COLS = 4;
+  const far = d => d.every((p, n) => d.every((q, m) => m <= n || q !== p ||
+    Math.max(Math.abs((n % COLS) - (m % COLS)), Math.abs(Math.floor(n / COLS) - Math.floor(m / COLS))) > 1));
+  let deck = shuffle(CONFIG.memory.flatMap((m, i) => [i, i]));
+  for (let t = 0; t < 3000 && !far(deck); t++) deck = shuffle(deck);
   const g = app.querySelector("#grid"), an = app.querySelector("#anec");
   g.innerHTML = deck.map((p, n) => {
     const m = CONFIG.memory[p];
     const back = m.photo ? `<img src="${esc(m.photo)}" alt="${esc(m.titre)}">` : esc(m.titre);
     return `<button class="mcard" data-n="${n}" aria-label="Carte"><span class="in"><span class="f">♥</span><span class="b" style="background:${tints[p % tints.length]}">${back}</span></span></button>`;
   }).join("");
-  let first = null, lock = false, found = 0;
+  let first = null, lock = false, found = 0, misses = 0;
+  const SHUFFLE_EVERY = 8; // toutes les 8 erreurs, les cartes cachées changent de place
+  const reshuffle = () => {
+    const cards = [...g.querySelectorAll(".mcard:not(.matched)")];
+    const ns = cards.map(c => +c.dataset.n), vals = shuffle(ns.map(n => deck[n]));
+    ns.forEach((n, i) => { deck[n] = vals[i]; });
+    cards.forEach(c => {
+      const p = deck[+c.dataset.n], m = CONFIG.memory[p];
+      c.querySelector(".b").style.background = tints[p % tints.length];
+      c.querySelector(".b").innerHTML = m.photo ? `<img src="${esc(m.photo)}" alt="${esc(m.titre)}">` : esc(m.titre);
+      c.classList.add("mix"); setTimeout(() => c.classList.remove("mix"), 600);
+    });
+    an.textContent = "Trop d'erreurs… les cartes se mélangent ! 😈";
+  };
   g.querySelectorAll(".mcard").forEach(c => c.onclick = () => {
     if (lock || c.classList.contains("open")) return;
     c.classList.add("open");
@@ -562,8 +637,11 @@ function memory() {
       an.textContent = CONFIG.memory[a].anecdote; first = null; found++;
       if (found === CONFIG.memory.length) setTimeout(() => win("memory", "Toutes les paires trouvées. Que de souvenirs."), 1400);
     } else {
-      lock = true; const f = first; first = null;
-      setTimeout(() => { f.classList.remove("open"); c.classList.remove("open"); lock = false; }, 900);
+      lock = true; const f = first; first = null; misses++;
+      setTimeout(() => {
+        f.classList.remove("open"); c.classList.remove("open");
+        if (misses % SHUFFLE_EVERY === 0) setTimeout(() => { reshuffle(); lock = false; }, 450); else lock = false;
+      }, 700);
     }
   });
 }
@@ -1362,16 +1440,119 @@ function letter() {
 
   // iPhone (Safari) n'autorise le son qu'après un vrai tap : on essaie à chaque geste jusqu'à ce que ça démarre
   const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+  const stopUnlock = () => GESTURES.forEach(ev => window.removeEventListener(ev, unlock, true));
   const unlock = () => {
+    if (window.musicHold) return; // le ticket d'entrée lance la musique lui-même
     started = true;
     if (userPaused) return;
-    cur().play().then(() => { GESTURES.forEach(ev => window.removeEventListener(ev, unlock, true)); update(); }).catch(() => {});
+    cur().play().then(() => { stopUnlock(); update(); }).catch(() => {});
   };
+  window.cardMusic.start = () => { started = true; userPaused = false; cur().play().then(() => { stopUnlock(); update(); }).catch(() => {}); };
   GESTURES.forEach(ev => window.addEventListener(ev, unlock, true));
   document.addEventListener("visibilitychange", () => { if (document.hidden) { audio.pause(); special.pause(); } else play(); });
 })();
 
+/* ===== Ticket d'entrée ===== */
+function ticket(replay) {
+  const T = CONFIG.ticket || {};
+  const norm = v => String(v || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z]/g, "");
+  const ok = v => (T.surnoms || []).some(x => norm(x) === norm(v));
+  const photo = ((CONFIG.puzzle && CONFIG.puzzle.photos) || [])[0];
+  if (!replay) window.musicHold = true;
+  const ov = document.createElement("div");
+  ov.className = "tk-ov";
+  ov.innerHTML = `
+    <div class="tk-sound" role="note">
+      <span class="tk-spk"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><path class="w1" d="M15.5 8.5a5 5 0 0 1 0 7"/><path class="w2" d="M19 5a9 9 0 0 1 0 14"/></svg></span>
+      <span class="tk-st"><b>Monte le son à fond</b><span>Enlève le mode silencieux : des chansons t'attendent derrière ce ticket.</span></span>
+    </div>
+    <div class="tk" id="tk">
+      <div class="tk-top">${photo ? `<img src="${photo.photo}" alt="Nous deux">` : ""}<div><span class="tk-eye">Ticket d'entrée · VIP</span><b>${esc(CONFIG.elle)}, 30 ans</b><span class="tk-sub">Valable pour 1 reine · à vie</span></div></div>
+      <div class="tk-perf"></div>
+      <div class="tk-stub" id="stub">
+        <label for="tk-in">Pour entrer : quel est ton surnom ?</label>
+        <input id="tk-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Ton surnom…">
+        <p class="tk-msg" id="tk-msg" aria-live="polite"></p>
+        <div class="tk-pull"><span class="arr">↓</span> Tire ici vers le bas pour déchirer</div>
+      </div>
+    </div>
+    <button class="tk-btn" id="tk-btn">ou touche ici pour entrer</button>`;
+  document.body.appendChild(ov);
+  const tk = ov.querySelector("#tk"), stub = ov.querySelector("#stub"), input = ov.querySelector("#tk-in"), msg = ov.querySelector("#tk-msg");
+  const jokes = ["Hmm… c'est pas comme ça que je t'appelle 😏", "Non plus… réfléchis bien 🤔", "Toujours pas ! Tu le fais exprès ?"];
+  let tries = 0, done_ = false;
+  input.addEventListener("input", () => { if (ok(input.value)) { msg.textContent = "✓ C'est bien toi. Tire le ticket vers le bas !"; msg.classList.add("ok"); } else { msg.textContent = ""; msg.classList.remove("ok"); } });
+
+  const confetti = () => {
+    const cols = ["#ff8fab", "#f5c27a", "#b9a6ff", "#8fe3b6", "#ffffff"];
+    for (let i = 0; i < 90; i++) {
+      const c = document.createElement("span");
+      c.className = "cf";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = cols[i % cols.length];
+      c.style.setProperty("--x", (Math.random() * 160 - 80) + "px");
+      c.style.setProperty("--r", (Math.random() * 900 - 450) + "deg");
+      c.style.setProperty("--d", (1.6 + Math.random() * 1.6) + "s");
+      c.style.animationDelay = Math.random() * .4 + "s";
+      if (i % 4 === 0) { c.textContent = "♥"; c.style.background = "none"; c.style.color = cols[i % cols.length]; c.style.fontSize = "18px"; c.style.width = "auto"; c.style.height = "auto"; }
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3800);
+    }
+  };
+  const welcome = () => {
+    const t = document.createElement("div"); t.className = "toast";
+    t.innerHTML = `<span style="padding:6px 4px 6px 8px"><b>Bienvenue</b>${esc(T.surnoms && T.surnoms[0] || CONFIG.elle)} ♥</span>`;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 3300);
+  };
+  const enter = () => {
+    if (done_) return;
+    if (!ok(input.value)) {
+      tries++;
+      msg.classList.remove("ok");
+      msg.textContent = tries >= 3 ? (T.indice || jokes[2]) : jokes[(tries - 1) % jokes.length];
+      tk.classList.remove("shake"); void tk.offsetWidth; tk.classList.add("shake");
+      stub.style.transform = "";
+      if (!input.value) input.focus();
+      return;
+    }
+    done_ = true;
+    input.blur();
+    window.musicHold = false;
+    if (window.cardMusic && window.cardMusic.start) window.cardMusic.start(); // le son démarre au moment de la déchirure
+    stub.classList.add("fall");
+    ov.querySelector(".tk-top").classList.add("fly");
+    confetti();
+    done.ticket = true; save();
+    setTimeout(() => ov.classList.add("out"), 900);
+    setTimeout(() => { ov.remove(); if (!replay) home(); welcome(); }, 1400);
+  };
+
+  // Déchirer avec le doigt
+  let y0 = null, dy = 0;
+  stub.addEventListener("pointerdown", e => {
+    if (e.target === input || done_) return;
+    y0 = e.clientY; dy = 0;
+    stub.classList.add("drag");
+    try { stub.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  stub.addEventListener("pointermove", e => {
+    if (y0 === null) return;
+    dy = Math.max(0, e.clientY - y0);
+    stub.style.transform = `translateY(${dy}px) rotate(${Math.min(14, dy / 14)}deg)`;
+  });
+  const release = () => {
+    if (y0 === null) return;
+    y0 = null; stub.classList.remove("drag");
+    if (dy > 80) enter(); else stub.style.transform = "";
+  };
+  stub.addEventListener("pointerup", release);
+  stub.addEventListener("pointercancel", release);
+  ov.querySelector("#tk-btn").onclick = enter;
+  input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); enter(); } });
+}
+
 home();
+if (!done.ticket) ticket();
 </script>
 
 </body>
