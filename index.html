@@ -592,16 +592,16 @@ function home() {
     </div>
     <p class="hint">Avec tout mon amour, ${esc(CONFIG.moi)}</p>
     ${done.ticket ? `<p style="text-align:center;margin:4px 0 0"><button class="linkbtn" id="reticket">Revoir mon ticket d'entrée</button></p>` : ""}
-    ${n > 0 ? `<div class="reset-zone" id="rz"><button class="btn ghost" id="reset">↺ Tout recommencer</button></div>` : ""}`;
+    <div class="reset-zone" id="rz"><button class="btn ghost" id="reset">↺ Tout recommencer</button></div>`;
   app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => open(b.dataset.g));
   const rt = app.querySelector("#reticket"); if (rt) rt.onclick = () => ticket(true);
   const rb = app.querySelector("#reset");
   if (rb) rb.onclick = () => {
     const z = app.querySelector("#rz");
-    z.innerHTML = `<p>Tout recommencer depuis le début ? Tes chiffres seront effacés (tes records bonus restent).</p>
+    z.innerHTML = `<p>Tout recommencer depuis le début, ticket d'entrée compris ? Tes chiffres seront effacés (tes records bonus restent).</p>
       <div class="reset-btns"><button class="btn" id="yes">Oui, on recommence</button><button class="btn ghost" id="no">Non</button></div>`;
     z.querySelector("#no").onclick = home;
-    z.querySelector("#yes").onclick = () => { const keep = done.best; done = keep ? { best: keep } : {}; save(); window.scrollTo(0, 0); home(); };
+    z.querySelector("#yes").onclick = () => { const keep = done.best; done = keep ? { best: keep } : {}; save(); window.scrollTo(0, 0); home(); ticket(); };
   };
 }
 
@@ -1662,6 +1662,7 @@ function ouverture() {
     if (userPaused) return;
     cur().play().then(() => { stopUnlock(); update(); }).catch(() => {});
   };
+  window.cardMusic.restart = () => { if (inSpecial) { inSpecial = false; spSource = ""; special.pause(); } load(0); try { audio.currentTime = 0; } catch (e) {} window.cardMusic.start(); renderList(); };
   window.cardMusic.hold = () => { window.musicHold = true; audio.pause(); special.pause(); };
   window.cardMusic.prime = () => { if (started) return; audio.muted = true; audio.play().then(() => { if (!started) audio.pause(); audio.muted = muted; }).catch(() => { audio.muted = muted; }); };
   window.cardMusic.start = () => { started = true; userPaused = false; cur().play().then(() => { stopUnlock(); update(); }).catch(() => {}); };
@@ -1672,41 +1673,36 @@ function ouverture() {
 /* ===== Message vocal d'intro (la blague d'Enzo) ===== */
 // À appeler pendant le geste (déchirure du ticket) : lance la voix, et la musique ne démarre qu'à la fin.
 function voixIntro() {
+  // Sur téléphone, le son n'est autorisé qu'après un vrai tap (glisser ne compte pas).
+  // On prépare donc la voix ET la musique dès qu'elle touche le ticket (champ, bouton…),
+  // puis on les lance pour de vrai au moment où elle le déchire.
   const V = CONFIG.voixIntro || {}, names = [].concat(V.fichiers || []);
   const a = new Audio(); a.preload = "auto";
-  let k = 0, ok = names.length > 0, fini = false, ui = null, after = null;
-  let muted = false; try { muted = localStorage.getItem("carte-kathy-muted") === "1"; } catch (e) {}
-  const music = () => { window.musicHold = false; if (window.cardMusic && window.cardMusic.start) window.cardMusic.start(); };
-  const finish = () => {
-    if (fini) return; fini = true; a.pause();
-    music();
-    if (ui) { ui.classList.add("out"); setTimeout(() => ui.remove(), 500); }
-    if (after) after();
-  };
-  if (!ok || muted) { music(); return { ok: () => false, show: f => f && f() }; }
-  if (window.cardMusic && window.cardMusic.hold) window.cardMusic.hold(); // la musique se tait pendant la voix
-  // débloque aussi la musique pendant le geste pour pouvoir la lancer après la voix (iPhone)
-  if (window.cardMusic && window.cardMusic.prime) window.cardMusic.prime();
-  a.onerror = () => { k++; if (k < names.length) { a.src = encodeURI(names[k]); a.play().catch(() => {}); } else { ok = false; finish(); } };
+  let k = 0, ok = names.length > 0, fini = false, lance = false, pret = false;
+  const isMuted = () => { try { return localStorage.getItem("carte-kathy-muted") === "1"; } catch (e) { return false; } };
+  const music = () => { window.musicHold = false; if (window.cardMusic) (window.cardMusic.restart || window.cardMusic.start)(); };
+  const finish = () => { if (fini) return; fini = true; a.pause(); music(); };
+  if (ok) a.src = encodeURI(names[0]);
+  a.onerror = () => { k++; if (k < names.length) { a.src = encodeURI(names[k]); if (lance) a.play().catch(() => {}); } else { ok = false; if (lance) finish(); } };
   a.onended = finish;
-  a.ontimeupdate = () => { if (ui && a.duration) ui.querySelector(".vx-bar span").style.width = (a.currentTime / a.duration * 100) + "%"; };
-  a.src = encodeURI(names[0]);
-  a.play().catch(() => {});
-  // si rien ne démarre au bout de 5 s (fichier absent, réseau…), on passe à la musique
-  setTimeout(() => { if (!fini && (a.paused || !a.currentTime)) { ok = false; finish(); } }, 5000);
-  const face = CONFIG.coeurs && (CONFIG.coeurs.photosCoeurs || [])[V.photo || 0];
   return {
-    ok: () => ok && !fini,
-    show(f) {
-      after = f;
-      ui = document.createElement("div"); ui.className = "vx";
-      ui.innerHTML = `<div class="vx-face">${face ? `<img src="${face}" alt="${esc(CONFIG.moi)}">` : ""}<i></i><i></i><span class="vx-mic">🎤</span></div>
-        <h2>${esc(V.texte || "")}</h2>
-        <div class="vx-eq">${[14, 26, 18, 32, 22, 12, 28, 16, 24].map((h, i) => `<b style="height:${h}px;animation-delay:${i * .09}s"></b>`).join("")}</div>
-        <div class="vx-bar"><span></span></div>
-        <button class="vx-skip" type="button">Passer ›</button>`;
-      ui.querySelector(".vx-skip").onclick = finish;
-      document.body.appendChild(ui);
+    // à appeler à chaque tap sur le ticket : débloque le son sans rien faire entendre
+    unlock() {
+      if (pret || lance) return;
+      if (window.cardMusic && window.cardMusic.prime) window.cardMusic.prime();
+      if (!ok) return;
+      a.muted = true;
+      a.play().then(() => { if (!lance) { a.pause(); a.currentTime = 0; } a.muted = false; pret = true; }).catch(() => { a.muted = false; });
+    },
+    // au moment de la déchirure
+    start() {
+      if (lance) return; lance = true;
+      if (window.cardMusic && window.cardMusic.hold) window.cardMusic.hold(); // la musique se tait pendant la voix
+      if (!ok || isMuted()) return finish();
+      a.muted = false; a.currentTime = 0;
+      a.play().catch(() => {});
+      // si la voix ne démarre pas (fichier absent, son bloqué…), la musique prend le relais
+      setTimeout(() => { if (!fini && (a.paused || !a.currentTime)) finish(); }, 3500);
     },
   };
 }
@@ -1719,6 +1715,7 @@ function ticket(replay) {
   const photo = ((CONFIG.puzzle && CONFIG.puzzle.photos) || [])[0];
   window.musicHold = true; // rien ne joue tant que le ticket n'est pas déchiré
   if (window.cardMusic && window.cardMusic.hold) window.cardMusic.hold();
+  const voix = voixIntro();
   const ov = document.createElement("div");
   ov.className = "tk-ov";
   ov.innerHTML = `
@@ -1738,6 +1735,7 @@ function ticket(replay) {
     </div>
     <button class="tk-btn" id="tk-btn">ou touche ici pour entrer</button>`;
   document.body.appendChild(ov);
+  ["touchend", "click", "pointerup", "keydown"].forEach(ev => ov.addEventListener(ev, () => voix.unlock(), true));
   const tk = ov.querySelector("#tk"), stub = ov.querySelector("#stub"), input = ov.querySelector("#tk-in"), msg = ov.querySelector("#tk-msg");
   const jokes = ["Hmm… c'est pas comme ça que je t'appelle 😏", "Non plus… réfléchis bien 🤔", "Toujours pas ! Tu le fais exprès ?"];
   let tries = 0, done_ = false;
@@ -1777,7 +1775,7 @@ function ticket(replay) {
     }
     done_ = true;
     input.blur();
-    voixIntro(); // la blague d'Enzo, puis la musique
+    voix.start(); // la blague d'Enzo, puis la musique depuis le début
     stub.classList.add("fall");
     ov.querySelector(".tk-top").classList.add("fly");
     confetti();
